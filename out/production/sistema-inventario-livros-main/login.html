@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body class="login-page">
+
+<div class="login-box">
+    <h2>Login</h2>
+
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="senha" placeholder="Senha">
+
+    <button type="button" onclick="entrar()">Entrar</button>
+
+    <a href="cadastro.html">Cadastrar Usuário</a>
+
+    <p id="mensagem"></p>
+</div>
+
+<script>
+    function entrar() {
+        let email = document.getElementById("email").value.trim();
+        let senha = document.getElementById("senha").value.trim();
+        let msg = document.getElementById("mensagem");
+
+        let emailSalvo = localStorage.getItem("email");
+        let senhaSalva = localStorage.getItem("senha");
+
+        if (email === "" || senha === "") {
+            msg.innerText = "Preencha os campos.";
+            msg.style.color = "red";
+            return;
+        }
+
+        if (email === emailSalvo && senha === senhaSalva) {
+            localStorage.setItem("logado", "true");
+
+            msg.innerText = "Login realizado com sucesso!";
+            msg.style.color = "green";
+
+            setTimeout(function () {
+                window.location.href = "index.html";
+            }, 1000);
+        } else {
+            msg.innerText = "Email ou senha inválidos.";
+            msg.style.color = "red";
+        }
+    }
+</script>
+
+</body>
+</html>
