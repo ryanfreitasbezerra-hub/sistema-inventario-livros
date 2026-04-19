@@ -9,99 +9,163 @@
 
 <body>
 
-<!-- 🔷 TOPO DO SITE -->
-<header style="background-color:#2c3e50; color:white; padding:15px; text-align:center; position:relative;">
+    <!-- 🔷 TOPO DO SITE -->
+    <header style="background-color:#2c3e50; color:white; padding:15px; text-align:center; position:relative;">
 
-    <h2>Biblioteca</h2>
+        <h2>Biblioteca</h2>
 
-    <!-- 🔐 BOTÃO LOGIN -->
-    <a href="login.html" id="btnLogin" style="position:absolute; right:100px; top:15px;">
-        <button style="padding:8px 15px; cursor:pointer;">Login</button>
-    </a>
+        <!-- 🔐 BOTÃO LOGIN -->
+        <a href="login.html" id="btnLogin" style="position:absolute; right:100px; top:15px;">
+            <button style="padding:8px 15px; cursor:pointer;">Login</button>
+        </a>
 
-    <!-- 🚪 BOTÃO SAIR -->
-    <button onclick="logout()" id="btnSair" style="position:absolute; right:20px; top:15px; padding:8px 15px; cursor:pointer;">
-        Sair
-    </button>
+        <!-- 🚪 BOTÃO SAIR -->
+        <button onclick="logout()" id="btnSair"
+            style="position:absolute; right:20px; top:15px; padding:8px 15px; cursor:pointer;">
+            Sair
+        </button>
 
-</header>
+    </header>
 
-<!-- 🔷 BANNER -->
-<div class="banner">
-    <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66" alt="Biblioteca">
-</div>
+    <!-- 🔷 BANNER -->
+    <div class="banner">
+        <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66" alt="Biblioteca">
+    </div>
 
-<!-- 🔷 TÍTULO -->
-<section class="titulo-pagina">
-    <h1>Sistema de Inventário de Livros</h1>
-    <p>Gerencie o cadastro, status e localização dos livros da biblioteca</p>
-</section>
+    <!-- 🔷 TÍTULO -->
+    <section class="titulo-pagina">
+        <h1>Sistema de Inventário de Livros</h1>
+        <p>Gerencie o cadastro, status e localização dos livros da biblioteca</p>
+    </section>
 
-<!-- 🔷 CONTEÚDO -->
-<div class="container">
+    <!-- 🔷 CONTEÚDO -->
+    <div class="container">
 
-    <form id="formLivro">
+        <form id="formLivro">
 
-        <h2>Cadastrar Livro</h2>
+            <h2>Cadastrar Livro</h2>
 
-        <label>Título</label>
-        <input type="text" id="titulo" required>
+            <label>Título</label>
+            <input type="text" id="titulo" required>
 
-        <label>Autor</label>
-        <input type="text" id="autor" required>
+            <label>Autor</label>
+            <input type="text" id="autor" required>
 
-        <label>Data de Aquisição</label>
-        <input type="date" id="data" required>
+            <label>Data de Aquisição</label>
+            <input type="date" id="data" required>
 
-        <label>Localização</label>
-        <input type="text" id="localizacao" placeholder="Ex: Estante A1">
+            <!-- <label>Localização</label>
+            <input type="text" id="localizacao" placeholder="Ex: Estante A1">
 
-        <label>Status</label>
-        <select id="status">
-            <option>Disponível</option>
-            <option>Emprestado</option>
-            <option>Manutenção</option>
-        </select>
+            <label>Status</label>
+            <select id="status">
+                <option>Disponível</option>
+                <option>Emprestado</option>
+                <option>Manutenção</option>
+            </select> -->
 
-        <button type="submit">Cadastrar Livro</button>
+            <button type="submit">Cadastrar Livro</button>
 
-    </form>
+        </form>
 
-    <table id="tabelaLivros">
+        <table id="tabelaLivros">
 
-        <thead>
-        <tr>
-            <th>Título</th>
-            <th>Autor</th>
-            <th>Data</th>
-            <th>Localização</th>
-            <th>Status</th>
-        </tr>
-        </thead>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Ano</th>
+                </tr>
+            </thead>
 
-        <tbody>
-        </tbody>
+            <tbody>
+            </tbody>
 
-    </table>
+        </table>
 
-</div>
+    </div>
 
-<script src="script.js"></script>
+    <script>
+        const API_URL = "http://localhost:8080/livros";
 
-<script>
-    let logado = localStorage.getItem("logado");
 
-    if (logado === "true") {
-        document.getElementById("btnLogin").style.display = "none";
-    } else {
-        document.getElementById("btnSair").style.display = "none";
-    }
+        if (localStorage.getItem("logado") !== "true") {
+            window.location.href = "login.html";
+        }
 
-    function logout() {
-        localStorage.removeItem("logado");
-        window.location.href = "login.html";
-    }
-</script>
+        let logado = localStorage.getItem("logado");
+
+        if (logado === "true") {
+            document.getElementById("btnLogin").style.display = "none";
+        } else {
+            document.getElementById("btnSair").style.display = "none";
+        }
+
+        function logout() {
+            localStorage.removeItem("logado");
+            window.location.href = "login.html";
+        }
+
+        document.getElementById("formLivro").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const livro = {
+                titulo: document.getElementById("titulo").value,
+                autor: document.getElementById("autor").value,
+                ano: new Date(document.getElementById("data").value).getFullYear(),
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(livro)
+                });
+
+                if (response.ok) {
+                    alert("Livro cadastrado com sucesso!");
+                    document.getElementById("formLivro").reset();
+                    carregarLivros();
+                } else {
+                    alert("Erro ao cadastrar livro");
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao conectar com o servidor");
+            }
+        });
+
+
+        async function carregarLivros() {
+            try {
+                const response = await fetch(API_URL);
+                const livros = await response.json();
+
+                const tabela = document.querySelector("#tabelaLivros tbody");
+                tabela.innerHTML = "";
+
+                livros.forEach(livro => {
+                    const linha = `
+                    <tr>
+                        <td>${livro.titulo}</td>
+                        <td>${livro.autor}</td>
+                        <td>${livro.ano}</td>
+                    </tr>
+                `;
+                    tabela.innerHTML += linha;
+                });
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        window.onload = carregarLivros;
+    </script>
 
 </body>
+
 </html>
