@@ -26,6 +26,8 @@
     </div>
 
     <script>
+        const API_URL = "https://sistema-inventario-livros.onrender.com";
+
         async function cadastrar() {
             let nome = document.getElementById("nome").value.trim();
             let email = document.getElementById("email").value.trim();
@@ -39,7 +41,7 @@
             }
 
             try {
-                const response = await fetch("http://localhost:8080/auth/register", {
+                const response = await fetch(API_URL + "/auth/register", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
