@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Biblioteca</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header>
+    <h2>Biblioteca</h2>
+
+    <a th:href="@{/login}">
+        <button class="btn-login">Login</button>
+    </a>
+</header>
+
+<!-- 🔥 IMAGEM DO BANNER -->
+<div class="banner">
+    <img th:src="@{/images/biblioteca.jpg}" alt="Biblioteca">
+</div>
+
+<div class="titulo-pagina">
+    <h1>Sistema de Inventário de Livros</h1>
+    <p>Gerencie o cadastro, status e localização dos livros da biblioteca</p>
+</div>
+
+</body>
+</html>
