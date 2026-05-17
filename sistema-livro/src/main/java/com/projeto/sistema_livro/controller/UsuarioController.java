@@ -1,5 +1,6 @@
 package com.projeto.sistema_livro.controller;
 
+import com.projeto.sistema_livro.dto.AtualizarUsuarioDTO;
 import com.projeto.sistema_livro.model.Usuario;
 import com.projeto.sistema_livro.service.UsuarioService;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,9 @@ public class UsuarioController {
     public Usuario salvar(@RequestBody Usuario usuario) {
         return service.salvar(usuario);
     }
+
+    @PutMapping("/{id}")
+    public void atualizar(@PathVariable Integer id, @RequestBody AtualizarUsuarioDTO  atualizarUsuarioDTO) { service.atualizar(id, atualizarUsuarioDTO); }
 
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Integer id) {
