@@ -1,7 +1,7 @@
 package com.projeto.sistema_livro.controller;
 
-import com.projeto.sistema_livro.model.ProjetoPesquisa;
-import com.projeto.sistema_livro.service.ProjetoPesquisaService;
+import com.projeto.sistema_livro.model.Categoria;
+import com.projeto.sistema_livro.service.CategoriaService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,25 +11,25 @@ import java.util.List;
 @CrossOrigin("*")
 public class ProjetoPesquisaController {
 
-    private final ProjetoPesquisaService service;
+    private final CategoriaService service;
 
-    public ProjetoPesquisaController(ProjetoPesquisaService service) {
+    public ProjetoPesquisaController(CategoriaService service) {
         this.service = service;
     }
 
     @GetMapping
-    public List<ProjetoPesquisa> listarTodos() {
+    public List<Categoria> listarTodos() {
         return service.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ProjetoPesquisa buscarPorId(@PathVariable Integer id) {
+    public Categoria buscarPorId(@PathVariable Integer id) {
         return service.buscarPorId(id).orElseThrow();
     }
 
     @PostMapping
-    public ProjetoPesquisa salvar(@RequestBody ProjetoPesquisa projetoPesquisa) {
-        return service.salvar(projetoPesquisa);
+    public Categoria salvar(@RequestBody Categoria categoria) {
+        return service.salvar(categoria);
     }
 
     @DeleteMapping("/{id}")
