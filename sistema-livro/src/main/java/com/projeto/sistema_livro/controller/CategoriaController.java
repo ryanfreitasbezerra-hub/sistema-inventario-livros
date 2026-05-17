@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/projetos-pesquisa")
+@RequestMapping("/categoria")
 @CrossOrigin("*")
-public class ProjetoPesquisaController {
+public class CategoriaController {
 
     private final CategoriaService service;
 
-    public ProjetoPesquisaController(CategoriaService service) {
+    public CategoriaController(CategoriaService service) {
         this.service = service;
     }
 
