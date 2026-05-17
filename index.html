@@ -14,7 +14,12 @@
 
         <h2>Biblioteca</h2>
 
-        <!-- 🔐 BOTÃO LOGIN -->
+        <!-- � BOTÃO CADASTROS -->
+        <a href="usuarios.html" id="btnCadastros" style="position:absolute; right:190px; top:15px;">
+            <button style="padding:8px 15px; cursor:pointer;">Cadastros</button>
+        </a>
+
+        <!-- �🔐 BOTÃO LOGIN -->
         <a href="login.html" id="btnLogin" style="position:absolute; right:100px; top:15px;">
             <button style="padding:8px 15px; cursor:pointer;">Login</button>
         </a>
@@ -48,11 +53,21 @@
             <label>Título</label>
             <input type="text" id="titulo" required>
 
-            <label>Autor</label>
-            <input type="text" id="autor" required>
+            <label>Ano</label>
+            <input type="text" id="ano" maxlength="4" placeholder="Ex: 2026" required>
 
-            <label>Data de Aquisição</label>
-            <input type="date" id="data" required>
+            <label>Quantidade</label>
+            <input type="number" id="quantidade" required>
+
+            <label>Categoria</label>
+            <select id="categoria" required>
+                <option value="">Selecione uma categoria...</option>
+            </select>
+
+            <label>Autor</label>
+            <select id="autor" required>
+                <option value="">Selecione um autor...</option>
+            </select>
 
             <!-- <label>Localização</label>
             <input type="text" id="localizacao" placeholder="Ex: Estante A1">
@@ -73,8 +88,10 @@
             <thead>
                 <tr>
                     <th>Título</th>
-                    <th>Autor</th>
                     <th>Ano</th>
+                    <th>Quantidade</th>
+                    <th>Categoria</th>
+                    <th>Autor</th>
                 </tr>
             </thead>
 
@@ -110,9 +127,13 @@
 
             const livro = {
                 titulo: document.getElementById("titulo").value,
-                autor: document.getElementById("autor").value,
-                ano: new Date(document.getElementById("data").value).getFullYear(),
+                ano: document.getElementById("ano").value,
+                quantidade: parseInt(document.getElementById("quantidade").value),
+                categoria: { categoriaId: parseInt(document.getElementById("categoria").value) },
+                autor: { pessoaId: parseInt(document.getElementById("autor").value) }
             };
+
+            console.log("Livro a ser cadastrado:", livro);  
 
             try {
                 const response = await fetch(API_URL, {
@@ -150,8 +171,10 @@
                     const linha = `
                     <tr>
                         <td>${livro.titulo}</td>
-                        <td>${livro.autor}</td>
                         <td>${livro.ano}</td>
+                        <td>${livro.quantidade}</td>
+                        <td>${livro.categoria ? livro.categoria.descricao : ''}</td>
+                        <td>${livro.autor ? livro.autor.nome : ''}</td>
                     </tr>
                 `;
                     tabela.innerHTML += linha;
@@ -162,7 +185,45 @@
             }
         }
 
-        window.onload = carregarLivros;
+        async function carregarCategorias() {
+            try {
+                const response = await fetch("https://sistema-inventario-livros.onrender.com/categoria");
+                const categorias = await response.json();
+                const selectCategoria = document.getElementById("categoria");
+                
+                categorias.forEach(cat => {
+                    const option = document.createElement("option");
+                    option.value = cat.categoriaId;  // <-- usando a propriedade correta
+                    option.textContent = cat.descricao;
+                    selectCategoria.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar categorias", error);
+            }
+        }
+
+        async function carregarAutores() {
+            try {
+                const response = await fetch("https://sistema-inventario-livros.onrender.com/pessoas");
+                const autores = await response.json();
+                const selectAutor = document.getElementById("autor");
+                
+                autores.forEach(autor => {
+                    const option = document.createElement("option");
+                    option.value = autor.pessoaId; // <-- usando a propriedade correta
+                    option.textContent = autor.nome;
+                    selectAutor.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar autores", error);
+            }
+        }
+
+        window.onload = () => {
+            carregarCategorias();
+            carregarAutores();
+            carregarLivros();
+        };
     </script>
 
 </body>

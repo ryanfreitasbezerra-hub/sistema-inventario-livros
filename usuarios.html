@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastros de Usuários - Sistema de Inventário</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .acoes-topo {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-acao {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .btn-incluir { background-color: #27ae60; }
+        .btn-incluir:hover { background-color: #219150; }
+
+        .btn-imprimir { background-color: #2980b9; }
+        .btn-imprimir:hover { background-color: #2471a3; }
+
+        .btn-editar {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .btn-excluir {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal-content .acoes-modal {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancelar {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn-cancelar:hover { background-color: #7f8c8d; }
+
+        .btn-salvar {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn-salvar:hover { background-color: #219150; }
+    </style>
+</head>
+
+<body>
+
+    <!-- 🔷 TOPO DO SITE -->
+    <header style="background-color:#2c3e50; color:white; padding:15px; text-align:center; position:relative;">
+        <h2>Biblioteca - Usuários</h2>
+        
+        <a href="index.html" style="position:absolute; left:20px; top:15px;">
+            <button style="padding:8px 15px; cursor:pointer;">Voltar</button>
+        </a>
+
+        <button onclick="logout()" id="btnSair"
+            style="position:absolute; right:20px; top:15px; padding:8px 15px; cursor:pointer;">
+            Sair
+        </button>
+    </header>
+
+    <!-- 🔷 TÍTULO -->
+    <section class="titulo-pagina">
+        <h1>Gestão de Usuários</h1>
+        <p>Abaixo está a lista de usuários cadastrados no sistema.</p>
+    </section>
+
+    <!-- 🔷 CONTEÚDO -->
+    <div class="container" style="max-width: 900px;">
+
+        <!-- Botões do Topo -->
+        <div class="acoes-topo">
+            <button class="btn-acao btn-incluir" onclick="incluirUsuario()">+ Incluir</button>
+            <button class="btn-acao btn-imprimir" onclick="imprimirTabela()">🖨️ Imprimir</button>
+        </div>
+
+        <!-- Tabela de Usuários -->
+        <table id="tabelaUsuarios">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th style="text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+    </div>
+
+    <div id="modalIncluir" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Cadastrar Usuário</h2>
+            <input type="text" id="modalNome" placeholder="Nome" required>
+            <input type="email" id="modalEmail" placeholder="Email" required>
+            <input type="password" id="modalSenha" placeholder="Senha" required>
+            <p id="modalMensagem" style="margin-top:0; margin-bottom:15px; font-size:14px;"></p>
+            <div class="acoes-modal">
+                <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button type="button" class="btn-salvar" onclick="salvarUsuario()">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEditar" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Editar Usuário</h2>
+            <input type="hidden" id="modalEdicaoId">
+            <input type="text" id="modalEdicaoNome" placeholder="Nome" required>
+            <input type="email" id="modalEdicaoEmail" placeholder="Email" required>
+            <input type="password" id="modalEdicaoSenha" placeholder="Nova Senha (opcional)">
+            <p id="modalEdicaoMensagem" style="margin-top:0; margin-bottom:15px; font-size:14px;"></p>
+            <div class="acoes-modal">
+                <button type="button" class="btn-cancelar" onclick="fecharModalEditar()">Cancelar</button>
+                <button type="button" class="btn-salvar" onclick="salvarEdicao()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://sistema-inventario-livros.onrender.com";
+        
+        if (localStorage.getItem("logado") !== "true") {
+            window.location.href = "login.html";
+        }
+
+        function logout() {
+            localStorage.removeItem("logado");
+            window.location.href = "login.html";
+        }
+
+        function incluirUsuario() {
+            document.getElementById("modalNome").value = "";
+            document.getElementById("modalEmail").value = "";
+            document.getElementById("modalSenha").value = "";
+            document.getElementById("modalMensagem").innerText = "";
+            document.getElementById("modalIncluir").style.display = "flex";
+        }
+
+        function fecharModal() {
+            document.getElementById("modalIncluir").style.display = "none";
+        }
+
+        async function salvarUsuario() {
+            let nome = document.getElementById("modalNome").value.trim();
+            let email = document.getElementById("modalEmail").value.trim();
+            let senha = document.getElementById("modalSenha").value.trim();
+            let mensagem = document.getElementById("modalMensagem");
+
+            if (nome === "" || email === "" || senha === "") {
+                mensagem.innerText = "Preencha todos os campos.";
+                mensagem.style.color = "red";
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL + "/auth/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        nome: nome,
+                        login: email,
+                        senha: senha
+                    })
+                });
+
+                if (response.ok) {
+                    mensagem.innerText = "Cadastro realizado com sucesso!";
+                    mensagem.style.color = "green";
+
+                    setTimeout(function () {
+                        fecharModal();
+                        carregarUsuarios();
+                    }, 1000);
+                } else {
+                    if(response.status === 409) {
+                        mensagem.innerText = "Email já cadastrado.";
+                        mensagem.style.color = "red";
+                    }else{
+                        mensagem.innerText = "Erro ao realizar cadastro.";
+                        mensagem.style.color = "red";
+
+                    }
+                }
+            } catch (e) {
+                console.log(e);
+                mensagem.innerText = "Erro ao conectar com o servidor.";
+                mensagem.style.color = "red";
+            }
+        }
+
+        function imprimirTabela() {
+            // Lógica simples para impressão
+            window.print();
+        }
+
+        function editarUsuario(id, nome, login) {
+            document.getElementById("modalEdicaoId").value = id;
+            document.getElementById("modalEdicaoNome").value = nome;
+            document.getElementById("modalEdicaoEmail").value = login;
+            document.getElementById("modalEdicaoSenha").value = "";
+            document.getElementById("modalEdicaoMensagem").innerText = "";
+            document.getElementById("modalEditar").style.display = "flex";
+        }
+
+        function fecharModalEditar() {
+            document.getElementById("modalEditar").style.display = "none";
+        }
+
+        async function salvarEdicao() {
+            let id = document.getElementById("modalEdicaoId").value;
+            let nome = document.getElementById("modalEdicaoNome").value.trim();
+            let email = document.getElementById("modalEdicaoEmail").value.trim();
+            let senha = document.getElementById("modalEdicaoSenha").value.trim();
+            let mensagem = document.getElementById("modalEdicaoMensagem");
+
+            if (nome === "" || email === "") {
+                mensagem.innerText = "Preencha Nome e Email.";
+                mensagem.style.color = "red";
+                return;
+            }
+
+            let payload = {
+                idUsuario: parseInt(id),
+                nome: nome,
+                login: email
+            };
+
+            if (senha !== "") {
+                payload.senha = senha;
+            }
+
+            console.log(payload);
+            
+            try {
+                const response = await fetch(API_URL + "/usuarios/" + id, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    mensagem.innerText = "Usuário atualizado com sucesso!";
+                    mensagem.style.color = "green";
+
+                    setTimeout(function () {
+                        fecharModalEditar();
+                        carregarUsuarios();
+                    }, 1000);
+                } else {
+                    mensagem.innerText = "Erro ao atualizar usuário.";
+                    mensagem.style.color = "red";
+                }
+            } catch (e) {
+                console.log(e);
+                mensagem.innerText = "Erro ao conectar com o servidor.";
+                mensagem.style.color = "red";
+            }
+        }
+
+        function excluirUsuario(id) {
+            // Lógica para excluir
+            const confirmar = confirm("Tem certeza que deseja excluir este usuário (" + id + ")?");
+            if (confirmar) {                
+                try {
+                    fetch(`${API_URL}/${id}`, { method: 'DELETE' })
+                        .then(response => {
+                            if (response.ok) {
+                                carregarUsuarios();
+                                alert("Usuário excluído com sucesso.");
+                            } else {
+                                alert("Erro ao excluir usuário.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Erro ao excluir usuário:", error);
+                            alert("Erro ao excluir usuário.");
+                        });
+                } catch (error) {
+                    console.error("Erro ao excluir usuário:", error);
+                    alert("Erro ao excluir usuário.");
+                }
+            }
+        }
+
+        async function carregarUsuarios() {
+            try {
+                const response = await fetch(API_URL + "/usuarios");
+                const usuarios = await response.json();
+
+                const tbody = document.querySelector("#tabelaUsuarios tbody");
+                tbody.innerHTML = "";
+
+                usuarios.forEach(usuario => {
+                    const tr = document.createElement("tr");
+
+                    tr.innerHTML = `
+                        <td>${usuario.idUsuario}</td>
+                        <td>${usuario.nome}</td>
+                        <td>${usuario.login}</td>
+                        <td style="text-align: center;">
+                            <button class="btn-editar" onclick="editarUsuario(${usuario.idUsuario}, '${usuario.nome}', '${usuario.login}')">Editar</button>
+                            <button class="btn-excluir" onclick="excluirUsuario(${usuario.idUsuario})">Excluir</button>
+                        </td>
+                    `;
+
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar usuários:", error);
+            }
+        }
+
+        window.onload = function () {
+            carregarUsuarios();
+        }
+    </script>
+
+</body>
+</html>
